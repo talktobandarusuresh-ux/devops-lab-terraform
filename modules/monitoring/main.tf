@@ -30,7 +30,10 @@ resource "null_resource" "helm_repos" {
       "helm repo add open-telemetry       https://open-telemetry.github.io/opentelemetry-helm-charts",
       "helm repo update",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 }
 
@@ -45,7 +48,10 @@ resource "null_resource" "monitoring_ns" {
     inline = [
       "kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.helm_repos]
@@ -62,7 +68,10 @@ resource "null_resource" "prometheus_stack" {
     inline = [
       "helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --wait --timeout 10m",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.monitoring_ns]
@@ -79,7 +88,10 @@ resource "null_resource" "loki" {
     inline = [
       "helm upgrade --install loki grafana/loki-stack --namespace monitoring --set grafana.enabled=false --wait --timeout 5m",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.prometheus_stack]
@@ -96,7 +108,10 @@ resource "null_resource" "otel" {
     inline = [
       "helm upgrade --install otel open-telemetry/opentelemetry-collector --namespace monitoring --wait --timeout 5m",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.loki]
@@ -113,7 +128,10 @@ resource "null_resource" "blackbox" {
     inline = [
       "helm upgrade --install blackbox prometheus-community/prometheus-blackbox-exporter --namespace monitoring --wait --timeout 5m",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.otel]
@@ -189,7 +207,10 @@ data:
 EOF
 SCRIPT
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.blackbox]
@@ -237,7 +258,10 @@ spec:
 EOF
 SCRIPT
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.grafana_dashboard]

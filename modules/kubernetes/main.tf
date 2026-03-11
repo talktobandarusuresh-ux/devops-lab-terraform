@@ -27,7 +27,10 @@ resource "null_resource" "containerd" {
       "systemctl enable containerd",
       "systemctl restart containerd",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 }
 
@@ -47,7 +50,10 @@ resource "null_resource" "docker" {
       "systemctl enable docker",
       "systemctl restart docker",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.containerd]
@@ -70,7 +76,10 @@ resource "null_resource" "kubernetes_tools" {
       "apt-mark hold kubelet kubeadm kubectl",
       "systemctl enable kubelet",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.docker]
@@ -90,7 +99,10 @@ resource "null_resource" "sysctl" {
       "cat <<'EOF' > /etc/sysctl.d/k8s.conf\nnet.bridge.bridge-nf-call-iptables  = 1\nnet.bridge.bridge-nf-call-ip6tables = 1\nnet.ipv4.ip_forward                 = 1\nEOF",
       "sysctl --system",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.kubernetes_tools]
@@ -114,7 +126,10 @@ resource "null_resource" "kubeadm_init" {
       # Remove control-plane taint so pods can schedule on single node
       "kubectl taint nodes --all node-role.kubernetes.io/control-plane- || true",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.sysctl]
@@ -133,7 +148,10 @@ resource "null_resource" "flannel" {
       # Wait until coredns is running
       "kubectl -n kube-system wait --for=condition=Ready pod -l k8s-app=kube-dns --timeout=180s",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.kubeadm_init]
@@ -150,7 +168,10 @@ resource "null_resource" "helm" {
     inline = [
       "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.flannel]
@@ -170,7 +191,10 @@ resource "null_resource" "terraform_cli" {
       "apt-get update -y",
       "apt-get install -y terraform",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.helm]
@@ -191,7 +215,10 @@ resource "null_resource" "k9s" {
       "mv k9s /usr/local/bin/",
       "rm -f k9s_Linux_amd64.tar.gz",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.terraform_cli]
@@ -210,7 +237,10 @@ resource "null_resource" "metrics_server" {
       # Patch for single-node (insecure TLS) — common local lab requirement
       "kubectl patch deployment metrics-server -n kube-system --type='json' -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/containers/0/args/-\",\"value\":\"--kubelet-insecure-tls\"}]'",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.k9s]

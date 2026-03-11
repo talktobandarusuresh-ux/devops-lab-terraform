@@ -20,7 +20,10 @@ resource "null_resource" "java" {
     inline = [
       "apt-get install -y openjdk-17-jdk",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 }
 
@@ -43,7 +46,10 @@ resource "null_resource" "jenkins_install" {
       # Allow Jenkins to run Docker builds
       "usermod -aG docker jenkins",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.java]
@@ -61,7 +67,10 @@ resource "null_resource" "jenkins_ready" {
       "echo 'Waiting for Jenkins to start...'",
       "for i in $(seq 1 30); do curl -s http://localhost:8080/login > /dev/null && echo 'Jenkins ready!' && break; echo \"Attempt $i/30...\"; sleep 10; done",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.jenkins_install]
@@ -88,7 +97,10 @@ resource "null_resource" "jenkins_plugins" {
       "sleep 20",
       "for i in $(seq 1 20); do curl -s http://localhost:8080/login > /dev/null && echo 'Jenkins restarted OK' && break; sleep 10; done",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.jenkins_ready]
@@ -107,7 +119,10 @@ resource "null_resource" "jenkins_password" {
       "cat /var/lib/jenkins/secrets/initialAdminPassword",
       "echo '===================================================='",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.jenkins_plugins]

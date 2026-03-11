@@ -27,7 +27,10 @@ resource "null_resource" "ingress_nginx" {
       "kubectl create namespace ingress-nginx --dry-run=client -o yaml | kubectl apply -f -",
       "helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --set controller.service.type=NodePort --wait --timeout 5m",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 }
 
@@ -61,7 +64,10 @@ metadata:
 EOF
 SCRIPT
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.ingress_nginx]
@@ -81,7 +87,10 @@ resource "null_resource" "cert_manager" {
       "kubectl create namespace cert-manager --dry-run=client -o yaml | kubectl apply -f -",
       "helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --set installCRDs=true --wait --timeout 5m",
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.metallb]
@@ -109,7 +118,10 @@ spec:
 EOF
 SCRIPT
     ]
-    connection { type = "docker"; host = var.container_id }
+    connection {
+      type = "docker"
+      host = var.container_id
+    }
   }
 
   depends_on = [null_resource.cert_manager]
